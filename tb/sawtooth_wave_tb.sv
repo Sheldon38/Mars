@@ -1,4 +1,4 @@
-`include "sawtooth_wave.v"
+`include "../RTL_verilog/sawtooth_wave.v"
 module sawtooth_wave_tb;
 reg clk;
 reg [31:0] x_in;

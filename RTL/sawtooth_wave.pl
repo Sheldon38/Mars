@@ -1,5 +1,5 @@
 print"
-`include \"adder/float_adder_v2.v\"
+`include \"../RTL/adder/float_adder_v2.v\"
 module sawtooth_wave(
 clk,
 x_in,
