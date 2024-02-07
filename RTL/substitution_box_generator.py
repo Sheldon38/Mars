@@ -1,5 +1,5 @@
 print(
-    """
+"""\
 `include "../RTL/multiplier/Multiplication.v"
 
 module substitution_box_generator
@@ -11,13 +11,12 @@ module substitution_box_generator
 (
     output reg [7:0] substitution_box[0:TABLE_ROWS-1][0:(KEY_SIZE >> 3)-1],
     output reg substitution_box_ready,
-    input [KEY_SIZE-1:0] initial_vector,
     input [31:0] chaotic_signal_x1,
     input [31:0] chaotic_signal_x2,
     input [31:0] chaotic_signal_x3,
     input reset,
     input enable_bar,
-    input clk
+    input clk,
 );
     
     localparam power_ten6_ieee754_sp = 32'h4974_2400;
