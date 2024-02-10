@@ -1,1 +1,3 @@
 RTL_Verilog/*.v
+RTL_Verilog/*.out
+tb/output
