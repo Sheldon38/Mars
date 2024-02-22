@@ -6,6 +6,8 @@
 //University: Dayalbagh Educational Institute
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+`ifndef MULTIPLICATION_MODULE
+`define MULTIPLICATION_MODULE
 
 module Multiplication(
 		input [31:0] a_operand,
@@ -60,3 +62,5 @@ assign result = Exception ? 32'd0 : zero ? {sign,31'd0} : Overflow ? {sign,8'hFF
 
 
 endmodule
+
+`endif // MULTIPLICATION_MODULE

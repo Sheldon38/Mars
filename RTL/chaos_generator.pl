@@ -1,5 +1,5 @@
 print"
-`include \"sawtooth_wave.v\"
+`include \"../RTL_verilog/sawtooth_wave.v\"
 `include \"../RTL/multiplier/Multiplication.v\"
 module chaos_generator(
 clk,
