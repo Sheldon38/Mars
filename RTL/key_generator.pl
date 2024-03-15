@@ -92,7 +92,7 @@ print"
 	assign word${\(4*$i+2)} = word${\(4*$i_m_1+2)} ^ word${\(4*$i+1)};
 	assign word${\(4*$i+3)} = word${\(4*$i_m_1+3)} ^ word${\(4*$i+2)};
 
-assign key_for_round_${i} = {word${\(4*$i)},word${\(4*$i+1)},word${\(4*$i+2)},word${\(4*$i+3)}};
+//assign key_for_round_${i} = {word${\(4*$i)},word${\(4*$i+1)},word${\(4*$i+2)},word${\(4*$i+3)}};
 
 assign key_for_round_${i} = 
 {word${\(4*$i+3)} [7:0],word${\(4*$i+3)} [15:8],word${\(4*$i+3)} [23:16],word${\(4*$i+3)} [31:24]
@@ -110,3 +110,4 @@ print"
 
 endmodule
 ";
+
