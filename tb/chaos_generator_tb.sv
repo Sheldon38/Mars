@@ -24,13 +24,13 @@ initial	begin
 
 end
 
-reg [31:0] x1_mem[1000];
-reg [31:0] x2_mem[1000];
-reg [31:0] x3_mem[1000];
+reg [31:0] x1_mem[20000];
+reg [31:0] x2_mem[20000];
+reg [31:0] x3_mem[20000];
 int i;
 initial	begin
 	i=0;
-	while(i<1000)	begin
+	while(i<20000)	begin
 		@(posedge clk);
 		x1_mem[i] = x1_out;
 		x2_mem[i] = x2_out;

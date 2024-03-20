@@ -1,5 +1,6 @@
 my $num_of_rounds = 5;
 print"
+`include \"mix_column.v\"
 module f_function_top(
 state_in,
 sub_table,
