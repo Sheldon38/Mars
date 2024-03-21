@@ -54,20 +54,20 @@ module substitution_box_generator
     assign {sbox_row_address, sbox_column_address} = sbox_counter;
     
     always @(posedge(clk)) begin
-        if (!enable_bar) begin
-            if (reset) begin
-                substitution_box_ready <= 1'b0;
-                sbox_counter <= 'b0;
-                for(integer i = 0; i < TABLE_ROWS; i++) begin
-                    for(integer j = 0; j < (KEY_SIZE >> 3); j++) begin
-                        substitution_box[i][j] <= 'b0;
-                    end
-                end
-                for(integer i = 0; i < 256; i++) begin
-                    sbox_value_map[i] <= 1'b0;
+        if (reset) begin
+            substitution_box_ready <= 1'b0;
+            sbox_counter <= 'b0;
+            for(integer i = 0; i < TABLE_ROWS; i++) begin
+                for(integer j = 0; j < (KEY_SIZE >> 3); j++) begin
+                    substitution_box[i][j] <= 'b0;
                 end
             end
-            else if (!sbox_value_map[v]) begin
+            for(integer i = 0; i < 256; i++) begin
+                sbox_value_map[i] <= 1'b0;
+            end
+        end
+        if (!enable_bar) begin
+            if (!sbox_value_map[v]) begin
                 substitution_box[sbox_row_address][sbox_column_address] <= v;
                 sbox_value_map[v] <= 1'b1;
                 {substitution_box_ready, sbox_counter} <= sbox_counter + 1;
