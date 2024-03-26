@@ -9,9 +9,9 @@ my $number_of_parallel_structures_m1 = $number_of_parallel_structures - 1;		#kee
 my $ram_depth = (8*$image_width*$image_width)/$ram_width;
 my $ram_depth_log2 = ceil(log($ram_depth)/log(2));
 print"
-`include \"../RTL_verilog/encryption_top.v\"
+`include \"../RTL_verilog/decryption_top.v\"
 
-module encryption_top_tb;
+module decryption_top_tb;
 
 reg clk,rstn;
 
@@ -22,10 +22,10 @@ reg [9:0] config_wait_count_for_chaos_valid;
 
 reg [7:0] MEM [0:$number_of_pixels-1];
 reg [7:0] MEMOUT [0:$number_of_pixels-1];
-wire encryption_done;
+wire decryption_done;
 
 
-encryption_top encryption_top_inst(
+decryption_top decryption_top_inst(
 .clk					 (clk),
 .rstn                                    (rstn),
 .config_x1_initial                       (config_x1_initial),
@@ -34,7 +34,7 @@ encryption_top encryption_top_inst(
 .config_initialization_vector            (config_initialization_vector),
 .config_wait_count_for_chaos_valid       (config_wait_count_for_chaos_valid),
 .config_key_initial                      (config_key_initial),
-.encryption_done			 (encryption_done)
+.decryption_done			 (decryption_done)
 );
 
 always #5 clk=~clk;
@@ -61,7 +61,7 @@ config_wait_count_for_chaos_valid = 10'd256;
 end
 
 initial	begin
-    \$readmemh(\"../image/ps2_pic_converted.txt\",MEM);          //path for reading orginal image
+    \$readmemh(\"../image/ps2_pic_encrypted.txt\",MEM);          //path for reading orginal image
 
 
 //CODE COMING AT SUPERSONIC SPEED, search for MEMORY_DESCRIPTION_ENDS IF YOU ARE STUCK in between this maze
@@ -71,28 +71,28 @@ initial	begin
 		my $ram_msb = 8*$i+7;
 		my $ram_lsb = 8*$i;
 		my $MEM_INDEX = $i+($j*32*$number_of_parallel_structures);
-	print"	encryption_top_inst.ram_inst.mem[$j][$ram_msb : $ram_lsb] = MEM[$MEM_INDEX];
+	print"	decryption_top_inst.ram_inst.mem[$j][$ram_msb : $ram_lsb] = MEM[$MEM_INDEX];
 	";
 	}
     }
 print"
 //[63].....[33],[32],[31].....[1],[0]
 //				  [64]
-\@(posedge encryption_done);
+\@(posedge decryption_done);
 ";
     for(my $j =0;$j<$ram_depth;$j++)	{
     	for(my $i =0;$i<(32*$number_of_parallel_structures);$i++)	{
 		my $ram_msb = 8*$i+7;
 		my $ram_lsb = 8*$i;
 		my $MEM_INDEX = $i+($j*32*$number_of_parallel_structures);
-	print"  MEM[$MEM_INDEX] = encryption_top_inst.ram_inst.mem[$j][$ram_msb:$ram_lsb] ;
+	print"  MEM[$MEM_INDEX] = decryption_top_inst.ram_inst.mem[$j][$ram_msb:$ram_lsb] ;
 	";
 	}
     }
 print"
 //MEMORY_DESCRIPTION_ENDS
 
-    \$writememh(\"../image/ps2_pic_encrypted.txt\",MEM);
+    \$writememh(\"../image/ps2_pic_decrypted.txt\",MEM);
 end
 
 

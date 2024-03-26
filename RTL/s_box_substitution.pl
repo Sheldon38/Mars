@@ -19,7 +19,7 @@ print"	4'd${row_i} : begin
 		for(my $col_i=0;$col_i<16;$col_i++){
 			my $col_lower_index = (15-${col_i})*8;
 			my $col_upper_index = (15-${col_i})*8+7;
-			print"4'd${col_i} : sub_byte = sub_table[${row_i}][$col_upper_index:$col_lower_index]
+			print"4'd${col_i} : sub_byte = sub_table[${row_i}][$col_upper_index:$col_lower_index];
 			";
 		}
 print"default : sub_byte = 8'd0;

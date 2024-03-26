@@ -66,7 +66,7 @@ assign rhs_cypher_text_for_round${i} = lhs_plane_text_for_round${i} ^ f_function
 ";
 }
 print"
-assign cypher_text_out = {lhs_cypher_text_for_round${num_of_rounds_m1},rhs_cypher_text_for_round${num_of_rounds_m1}};
+assign cypher_text_out = substitution_table_valid ? {lhs_cypher_text_for_round${num_of_rounds_m1},rhs_cypher_text_for_round${num_of_rounds_m1}} : 128'd0;
 
 
 

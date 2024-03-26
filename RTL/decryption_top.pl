@@ -13,7 +13,7 @@ print"
 `include \"../RTL_verilog/key_generator.v\"
 `include \"../RTL_verilog/substitution_box_generator.v\"
 `include \"../RTL_verilog/chaos_generator.v\"
-`include \"../RTL_verilog/fiestel_structure_top.v\"
+`include \"../RTL_verilog/decryption_fiestel_structure_top.v\"
 
 //1x30 aloo   paratha
 //1x30 gobhi  paratha
@@ -24,7 +24,7 @@ print"
 //2x35 paneer paratha
 //120
 
-module encryption_top(
+module decryption_top(
 clk,
 rstn,
 config_x1_initial,
@@ -33,7 +33,7 @@ config_x3_initial,
 config_initialization_vector,
 config_wait_count_for_chaos_valid,
 config_key_initial,
-encryption_done
+decryption_done
 );
 
 
@@ -45,7 +45,7 @@ input [31:0] config_x3_initial;
 input [127:0] config_key_initial;
 input [255:0] config_initialization_vector;
 input [9:0] config_wait_count_for_chaos_valid;
-output encryption_done;
+output decryption_done;
 
 wire [$ram_depth_log2 - 1 : 0] ram_rd_address;
 reg [$ram_depth_log2 - 1 : 0] ram_wr_address;
@@ -53,7 +53,7 @@ assign ram_rd_address = ram_wr_address;
 wire [$ram_width - 1 : 0] ram_wr_data;
 wire wr_valid;
 wire [$ram_width - 1 : 0] ram_rd_data;
-assign encryption_done = (ram_wr_address == ${ram_depth_log2}'d${ram_depth_m1}) ? 1'b1 : 1'b0;
+assign decryption_done = (ram_wr_address == ${ram_depth_log2}'d${ram_depth_m1}) ? 1'b1 : 1'b0;
 
 
 ram ram_inst(
@@ -171,33 +171,36 @@ print"
 );
 
 assign substitution_table_valid = ~enable_bar && substitution_box_ready;
-reg [255:0] mlc_cypher_text_out;
+reg [255:0] mlc_cypher_text_in;
 
 ";
 for(my $j=0;$j<$number_of_parallel_structures; $j++){
 print"
-wire [255:0] plane_text_in_for_str${j};
-wire [255:0] cypher_text_out_for_str${j};
+wire [255:0] plane_text_out_for_str${j};
+wire [255:0] plane_text_out_for_str${j}_going_to_ram;
+wire [255:0] cypher_text_in_for_str${j};
+
 ";
 my $lsb = 256*${j};
 my $msb = 255 + $lsb;
 my $j_m_1 = $j - 1;
 if($j eq 0){
 print"
-assign plane_text_in_for_str${j} = ram_rd_data [$msb:$lsb] ^ ((ram_rd_address == ${ram_depth_log2}'d0) ? config_initialization_vector : mlc_cypher_text_out);
+assign plane_text_out_for_str${j}_going_to_ram = plane_text_out_for_str${j} ^ ((ram_rd_address == ${ram_depth_log2}'d0) ? config_initialization_vector : mlc_cypher_text_in);
 ";
 }
 else{
 print"
-assign plane_text_in_for_str${j} = ram_rd_data [$msb:$lsb] ^ cypher_text_out_for_str${j_m_1};
+assign plane_text_out_for_str${j}_going_to_ram =  plane_text_out_for_str${j} ^ cypher_text_in_for_str${j_m_1};
 ";
 }
 print"
-fiestel_structure_top fiestel_structure_top_inst_${j}(
+assign cypher_text_in_for_str${j} = ram_rd_data [$msb:$lsb];
+decryption_fiestel_structure_top decryption_fiestel_structure_top_inst_${j}(
 .clk			(clk),
 .rst			(rst),
-.plane_text_in		(plane_text_in_for_str${j}),
-.cypher_text_out	(cypher_text_out_for_str${j}),
+.plane_text_out		(plane_text_out_for_str${j}),
+.cypher_text_in		(cypher_text_in_for_str${j}),
 ";
 for(my $i=0;$i<$num_of_rounds;$i++){
 print".key_for_round_${i}	(key_for_round_${i}),
@@ -208,11 +211,11 @@ print".sub_table		(sub_table),
 );";
 }
 print"
-assign wr_valid = substitution_table_valid && !encryption_done;
+assign wr_valid = substitution_table_valid && !decryption_done;
 assign ram_wr_data = 
 {";
 for(my $j=15;$j>=0;$j--){
-print"cypher_text_out_for_str${j}";
+print"plane_text_out_for_str${j}_going_to_ram";
 if($j ne 0){
 print",";
 }
@@ -224,11 +227,11 @@ print"
 always \@(posedge clk,negedge rstn)	begin
 	if(!rstn)	begin
 		ram_wr_address <= ${ram_depth_log2}'d0;
-		mlc_cypher_text_out <= 256'd0; 
+		mlc_cypher_text_in <= 256'd0; 
 	end
 	else	begin
 		ram_wr_address <= (substitution_table_valid && (ram_wr_address != ${ram_depth_log2}'d${ram_depth_m1})) ? ram_wr_address + ${ram_depth_log2}'d1 : ram_wr_address;
-		mlc_cypher_text_out <= (ram_wr_address == ${ram_depth_log2}'d0) ? 256'd0 : cypher_text_out_for_str${number_of_parallel_structures_m1}; 
+		mlc_cypher_text_in <= (ram_wr_address == ${ram_depth_log2}'d0) ? 256'd0 : cypher_text_in_for_str${number_of_parallel_structures_m1}; 
 	end
 end
 

@@ -66,7 +66,7 @@ module substitution_box_generator
                 sbox_value_map[i] <= 1'b0;
             end
         end
-        if (!enable_bar) begin
+        else if (!reset && !enable_bar) begin
             if (!sbox_value_map[v]) begin
                 substitution_box[sbox_row_address][sbox_column_address] <= v;
                 sbox_value_map[v] <= 1'b1;
