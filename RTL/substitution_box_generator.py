@@ -1,15 +1,27 @@
+TABLE_ROWS = 16
+KEY_SIZE = 128
+
 print(
-    """\
+    f"""\
 `include "../RTL/multiplier/Multiplication.v"
 
 module substitution_box_generator
 #(
-    parameter TABLE_ROWS = 16,
-    parameter KEY_SIZE = 128, // TODO: implement variable key size
-    parameter USING_IEEE_754_DP = 0// TODO: use sp or dp format based on this param 
+    parameter TABLE_ROWS = {TABLE_ROWS},
+    parameter KEY_SIZE = {KEY_SIZE}, // TODO: implement variable key size
+    parameter USING_IEEE_754_DP = 0// TODO: use single precision or double precision format based on this param 
 )
-(
-    output reg [7:0] substitution_box[0:TABLE_ROWS-1][0:(KEY_SIZE >> 3)-1],
+("""
+)
+
+for i in range(TABLE_ROWS):
+    print(
+        f"""\
+    output reg [KEY_SIZE-1:0] substitution_box_row{i},"""
+    )
+
+print(
+    """\
     output reg substitution_box_ready,
     input wire [31:0] chaotic_signal_x1,
     input wire [31:0] chaotic_signal_x2,
@@ -56,19 +68,36 @@ module substitution_box_generator
     always @(posedge(clk)) begin
         if (reset) begin
             substitution_box_ready <= 1'b0;
-            sbox_counter <= 'b0;
-            for(integer i = 0; i < TABLE_ROWS; i++) begin
-                for(integer j = 0; j < (KEY_SIZE >> 3); j++) begin
-                    substitution_box[i][j] <= 'b0;
-                end
-            end
-            for(integer i = 0; i < 256; i++) begin
+            sbox_counter <= 'b0;"""
+)
+
+for i in range(TABLE_ROWS):
+    print(
+        f"""\
+            substitution_box_row{i} <= 'b0;"""
+    )
+
+print(
+    """\
+            for(integer i = 0; i < 256; i=i+1) begin
                 sbox_value_map[i] <= 1'b0;
             end
         end
         else if (!reset && !enable_bar) begin
             if (!sbox_value_map[v]) begin
-                substitution_box[sbox_row_address][sbox_column_address] <= v;
+                case(sbox_row_address)"""
+)
+
+for i in range(TABLE_ROWS):
+    print(
+        f"""\
+                    substitution_box_row{i}[8*sbox_column_address+:8] <= v;"""
+    )
+
+print(
+    """\
+                    default: sbox_counter <= 'bx;
+                endcase
                 sbox_value_map[v] <= 1'b1;
                 {substitution_box_ready, sbox_counter} <= sbox_counter + 1;
             end
