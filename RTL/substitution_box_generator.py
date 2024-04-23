@@ -91,7 +91,7 @@ print(
 for i in range(TABLE_ROWS):
     print(
         f"""\
-                    substitution_box_row{i}[8*sbox_column_address+:8] <= v;"""
+                {i} : substitution_box_row{i}[8*sbox_column_address+:8] <= v;"""
     )
 
 print(
