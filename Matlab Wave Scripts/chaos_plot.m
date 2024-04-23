@@ -11,16 +11,16 @@ uselesscomments3=textscan(fid3,'%c',173);
 x1data = fscanf(fid1, '%x',Inf);
 x2data = fscanf(fid2, '%x',Inf);
 x3data = fscanf(fid3, '%x',Inf);
-x1Value = zeros(1000,1);
-x2Value = zeros(1000,1);
-x3Value = zeros(1000,1);
-for i=1:1000 
+x1Value = zeros(20000,1);
+x2Value = zeros(20000,1);
+x3Value = zeros(20000,1);
+for i=1:20000 
     %singleValue(i) = typecast(uint32(hex2dec(dec2hex(sawtoothdata(i)))),'single');
     x1Value(i) = typecast(uint32(hex2dec(dec2hex(x1data(i)))),'single');
     x2Value(i) = typecast(uint32(hex2dec(dec2hex(x2data(i)))),'single');
     x3Value(i) = typecast(uint32(hex2dec(dec2hex(x3data(i)))),'single');
 end
-x = 1:1000;
+x = 1:20000;
 subplot(3,1,1);
 plot(x,x1Value)
 xlabel('iteration------>');

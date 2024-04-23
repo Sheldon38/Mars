@@ -1,5 +1,14 @@
+fid = fopen('E:\clg work\Sem 8\final_year_project\Mars_Local\image\ps2_pic_encrypted.txt', 'r');
+if fid == -1, error('Cannot open file'); end
+%ImgSize = fscanf(fid, '%d %d', 2);
+uselesscomments=textscan(fid,'%c',169);
+ImgData = fscanf(fid, '%x ',Inf);
+Img_orig     = reshape(ImgData,[256 256]);
+Img_orig = cat(3, Img_orig, Img_orig, Img_orig);
+Img_orig = uint8(Img_orig);
 
-img = imread('https://upload.wikimedia.org/wikipedia/commons/f/fa/Grayscale_8bits_palette_sample_image.png'); 
+img = Img_orig;
+%img = imread('https://upload.wikimedia.org/wikipedia/commons/f/fa/Grayscale_8bits_palette_sample_image.png'); 
 
 
 if ndims(img) == 3
