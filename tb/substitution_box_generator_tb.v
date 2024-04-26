@@ -5,13 +5,15 @@
 
 module substitution_box_generator_tb;
 
+localparam KEY_SIZE = 128;
+
 reg clk;
 reg reset = 'b1;
 reg enable_bar = 'b0;
 wire [31:0] chaotic_signal_x1, chaotic_signal_x2, chaotic_signal_x3;
 reg [31:0] x1_initial, x2_initial, x3_initial;
 wire ready;
-wire [7:0] sbox[0:15][0:15];
+wire [KEY_SIZE-1:0] sbox_row[0:15];
 
 chaos_generator chaos_generator_object(
     clk,
@@ -25,7 +27,22 @@ chaos_generator chaos_generator_object(
 );
 
 substitution_box_generator DUT(
-    sbox,
+    sbox_row[0],
+    sbox_row[1],
+    sbox_row[2],
+    sbox_row[3],
+    sbox_row[4],
+    sbox_row[5],
+    sbox_row[6],
+    sbox_row[7],
+    sbox_row[8],
+    sbox_row[9],
+    sbox_row[10],
+    sbox_row[11],
+    sbox_row[12],
+    sbox_row[13],
+    sbox_row[14],
+    sbox_row[15],
     ready,
     chaotic_signal_x1,
     chaotic_signal_x2,
@@ -35,7 +52,7 @@ substitution_box_generator DUT(
     clk
 );
 
-reg [7:0] mem[0:15][0:15];
+reg [KEY_SIZE-1:0] mem[0:15];
 
 always #(`CLOCK_PERIOD/2) clk=~clk;
 
@@ -50,10 +67,8 @@ initial	begin
     
     wait(ready == 1);
     for (integer i = 0; i < 16; i++) begin
-        for (integer j = 0; j < 16; j++) begin
-            mem[i][j] = sbox[i][j];
+            mem[i] = sbox_row[i];
         end
-    end
     $writememh("./output/substitution_box.txt", mem);
     $finish();
 end
