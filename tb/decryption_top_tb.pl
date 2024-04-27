@@ -93,6 +93,7 @@ print"
 //MEMORY_DESCRIPTION_ENDS
 
     \$writememh(\"../image/ps2_pic_decrypted.txt\",MEM);
+    \$finish();
 end
 
 

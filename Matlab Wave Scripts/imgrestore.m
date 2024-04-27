@@ -1,5 +1,7 @@
 %imgconvert
-fid = fopen('E:\clg work\Sem 8\final_year_project\Mars_Local\image\ps2_pic_decrypted.txt', 'r');
+clear all;
+close all;
+fid = fopen('E:\clg work\Sem 8\final_year_project\Mars_Local\image\ps2_pic_encrypted.txt', 'r');
 if fid == -1, error('Cannot open file'); end
 %ImgSize = fscanf(fid, '%d %d', 2);
 uselesscomments=textscan(fid,'%c',169);
@@ -9,3 +11,5 @@ Img = cat(3, Img, Img, Img);
 Img = uint8(Img);
 imshow(Img);
 fclose(fid);
+
+%imwrite(Img, 'E:\clg work\Sem 8\final_year_project\Mars_Local\image\cameraman_encr.png');

@@ -102,21 +102,30 @@ always\@(posedge clk,negedge rstn)	begin
 	end
 end
 
-wire [7:0] substitution_box[0:15][0:15];
+";
+for(my $i=0;$i<16;$i++){
+print"wire [127:0] substitution_box_row${i};
+";
+}
+print"
 wire substitution_box_ready;
 wire [31:0] chaotic_signal_x1;
 wire [31:0] chaotic_signal_x2;
 wire [31:0] chaotic_signal_x3;
 wire enable_bar;
 assign enable_bar = (chaos_ready_counter == config_wait_count_for_chaos_valid) ? 1'b0 : 1'b1;
-wire [127:0] sub_table[16];
 assign chaotic_signal_x1 = x1_out;
 assign chaotic_signal_x2 = x2_out;
 assign chaotic_signal_x3 = x3_out;
 
 substitution_box_generator substitution_box_generator_inst
 (
-.substitution_box		 (substitution_box),
+";
+for(my $i=0;$i<16;$i++){
+print".substitution_box_row${i}	 (substitution_box_row${i}),
+";
+}
+print"
 .substitution_box_ready		 (substitution_box_ready),
 .chaotic_signal_x1               (chaotic_signal_x1),
 .chaotic_signal_x2               (chaotic_signal_x2),
@@ -125,22 +134,6 @@ substitution_box_generator substitution_box_generator_inst
 .enable_bar                      (enable_bar),
 .clk                             (clk)
 );
-
-";
-for(my $j=0;$j<16;$j++){
-print"
-assign sub_table[$j] = 
-{";
-for(my $i=0;$i<16;$i++){
-print"substitution_box[$j][$i]";
-if($i ne 15){
-print",";
-}
-}
-print"};";
-}
-print"
-
 
 
 
@@ -166,7 +159,12 @@ print".key_for_round_${i}	(key_for_round_${i}),
 ";
 }
 print"
-.sub_table			(sub_table),
+";
+for(my $i=0;$i<16;$i++){
+print".substitution_box_row${i}	 (substitution_box_row${i}),
+";
+}
+print"
 .substitution_table_valid	(substitution_table_valid)
 );
 
@@ -206,7 +204,13 @@ for(my $i=0;$i<$num_of_rounds;$i++){
 print".key_for_round_${i}	(key_for_round_${i}),
 ";
 }
-print".sub_table		(sub_table),
+print"
+";
+for(my $i=0;$i<16;$i++){
+print".substitution_box_row${i}	 (substitution_box_row${i}),
+";
+}
+print"
 .substitution_table_valid	(substitution_table_valid)
 );";
 }

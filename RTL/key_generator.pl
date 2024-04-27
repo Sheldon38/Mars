@@ -1,5 +1,9 @@
 my $num_of_rounds = 5;
 @rc_values=("00","01","02","04","08","10","20","40","80","1B","36");
+my $sub_table_array_pl = "substitution_box_row0";
+for(my $i=1;$i<16;$i++){
+ $sub_table_array_pl.=",substitution_box_row${i}";
+}
 print"
 `include \"s_box_substitution.v\"
 module key_generator(
@@ -13,7 +17,12 @@ key_for_round_${i}_valid,
 ";
 }
 print"
-sub_table,
+";
+for(my $i=0;$i<16;$i++){
+print"substitution_box_row${i},
+";
+}
+print"
 substitution_table_valid
 );
 
@@ -28,7 +37,12 @@ output key_for_round_${i}_valid;
 ";
 }
 print"
-input [127:0] sub_table[16];
+";
+for(my $i=0;$i<16;$i++){
+print"input [127:0] substitution_box_row${i};
+";
+}
+print"
 input substitution_table_valid;
 
 wire [31:0] key_table[4];
@@ -76,10 +90,10 @@ print"
 
 	wire [7:0] sub_byte_0_for_round${i},sub_byte_1_for_round${i},sub_byte_2_for_round${i},sub_byte_3_for_round${i};
 
-	s_box_substitution	s_box_sub_round${i}_0 (sub_table,byte_0_for_round${i},sub_byte_0_for_round${i});
-	s_box_substitution	s_box_sub_round${i}_1 (sub_table,byte_1_for_round${i},sub_byte_1_for_round${i});
-	s_box_substitution	s_box_sub_round${i}_2 (sub_table,byte_2_for_round${i},sub_byte_2_for_round${i});
-	s_box_substitution	s_box_sub_round${i}_3 (sub_table,byte_3_for_round${i},sub_byte_3_for_round${i});
+	s_box_substitution	s_box_sub_round${i}_0 (${sub_table_array_pl},byte_0_for_round${i},sub_byte_0_for_round${i});
+	s_box_substitution	s_box_sub_round${i}_1 (${sub_table_array_pl},byte_1_for_round${i},sub_byte_1_for_round${i});
+	s_box_substitution	s_box_sub_round${i}_2 (${sub_table_array_pl},byte_2_for_round${i},sub_byte_2_for_round${i});
+	s_box_substitution	s_box_sub_round${i}_3 (${sub_table_array_pl},byte_3_for_round${i},sub_byte_3_for_round${i});
 
 	wire [7:0] sub_byte_1_for_round${i}_xored;
         assign sub_byte_1_for_round${i}_xored = 8'h$rc_values[$i] ^ sub_byte_1_for_round${i};

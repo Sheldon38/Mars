@@ -3,14 +3,24 @@ print"
 `include \"mix_column.v\"
 module f_function_top(
 state_in,
-sub_table,
+";
+for(my $i=0;$i<16;$i++){
+print"sub_table_${i},
+";
+}
+print"
 key_in,
 state_out
 );
 
 
 input [127:0] state_in;
-input [127:0] sub_table[16];
+";
+for(my $i=0;$i<16;$i++){
+print"input [127:0] sub_table_${i};
+";
+}
+print"
 input [127:0] key_in;
 output [127:0] state_out;
 
@@ -24,7 +34,15 @@ wire [127:0] state_in_subbed;
 for(my $i=0;$i<16;$i++){
 my $lower_index = 8*${i};
 my $upper_index = 8*${i}+7;
-print"s_box_substitution	s_box_sub${i} (sub_table,state_in[$upper_index:$lower_index],state_in_subbed[$upper_index:$lower_index]);
+print"s_box_substitution	s_box_sub${i} (
+";
+for(my $j=0;$j<16;$j++){
+print"sub_table_${j},
+";
+}
+print"
+state_in[$upper_index:$lower_index],state_in_subbed[$upper_index:$lower_index]);
+
 ";
 }
 print"

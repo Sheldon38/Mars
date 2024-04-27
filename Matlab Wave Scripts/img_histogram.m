@@ -38,7 +38,7 @@ clear ImgData;
 
 %Img_orig,Img_encr,Img_decr
 subplot(2,2,1);
-imshow(Img_orig);
+imshow(Img_decr);
 
 if ndims(Img_orig) == 3
   Img_orig = rgb2gray(Img_orig);

@@ -12,7 +12,13 @@ for(my $i=0;$i<$num_of_rounds;$i++){
 print"key_for_round_${i},
 ";
 }
-print"sub_table,
+print"
+";
+for(my $i=0;$i<16;$i++){
+print"substitution_box_row${i},
+";
+}
+print"
 substitution_table_valid
 );
 
@@ -27,7 +33,12 @@ print"input [127:0] key_for_round_${i};
 ";
 }
 print"
-input [127:0] sub_table[16];
+";
+for(my $i=0;$i<16;$i++){
+print"input [127:0] substitution_box_row${i};
+";
+}
+print"
 input substitution_table_valid;
 ";
 
@@ -56,7 +67,12 @@ wire [127:0] f_function_out_for_round${i};
 
 f_function_top f_function_for_round${i}(
 .state_in	(lhs_cypher_text_for_round${i}),
-.sub_table      (sub_table),
+";
+for(my $i=0;$i<16;$i++){
+print".sub_table_${i} (substitution_box_row${i}),
+";
+}
+print"
 .key_in         (key_for_round_${num_of_rounds_m_i_m_1}),
 .state_out      (f_function_out_for_round${i})
 );
