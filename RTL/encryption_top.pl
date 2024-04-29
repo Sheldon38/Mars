@@ -1,6 +1,6 @@
 use POSIX qw/ceil/;
 my $num_of_rounds = 5;
-my $number_of_parallel_structures = 16;		#keep in 2 raise to powers only
+my $number_of_parallel_structures = 2;		#keep in 2 raise to powers only
 my $image_width = 256;
 
 my $ram_width = 256*$number_of_parallel_structures;
@@ -9,7 +9,6 @@ my $ram_depth = (8*$image_width*$image_width)/$ram_width;
 my $ram_depth_m1 = $ram_depth - 1;
 my $ram_depth_log2 = ceil(log($ram_depth)/log(2));
 print"
-`include \"../RTL_verilog/ram.v\"
 `include \"../RTL_verilog/key_generator.v\"
 `include \"../RTL_verilog/substitution_box_generator.v\"
 `include \"../RTL_verilog/chaos_generator.v\"
@@ -33,6 +32,13 @@ config_x3_initial,
 config_initialization_vector,
 config_wait_count_for_chaos_valid,
 config_key_initial,
+
+ram_rd_address,
+ram_wr_address,
+ram_wr_data,
+ram_rd_data,
+wr_valid,
+
 encryption_done
 );
 
@@ -45,25 +51,35 @@ input [31:0] config_x3_initial;
 input [127:0] config_key_initial;
 input [255:0] config_initialization_vector;
 input [9:0] config_wait_count_for_chaos_valid;
-output encryption_done;
+output reg encryption_done;
 
-wire [$ram_depth_log2 - 1 : 0] ram_rd_address;
-reg [$ram_depth_log2 - 1 : 0] ram_wr_address;
+output [$ram_depth_log2 - 1 : 0] ram_rd_address;
+output reg [$ram_depth_log2 - 1 : 0] ram_wr_address;
+output [$ram_width - 1 : 0] ram_wr_data;
+output wr_valid;
+input [$ram_width - 1 : 0] ram_rd_data;
+
+
 assign ram_rd_address = ram_wr_address;
-wire [$ram_width - 1 : 0] ram_wr_data;
-wire wr_valid;
-wire [$ram_width - 1 : 0] ram_rd_data;
-assign encryption_done = (ram_wr_address == ${ram_depth_log2}'d${ram_depth_m1}) ? 1'b1 : 1'b0;
+
+always \@(posedge clk,negedge rstn)	begin
+	if(!rstn)	begin
+		encryption_done <= 1'd0;
+	end
+	else	begin
+		encryption_done <= (ram_wr_address == ${ram_depth_log2}'d${ram_depth_m1}) ? 1'b1 : encryption_done;
+	end
+end
 
 
-ram ram_inst(
-.clk		(clk),
-.ram_rd_address (ram_rd_address),
-.ram_wr_address (ram_wr_address),
-.ram_wr_data    (ram_wr_data),
-.wr_val         (wr_valid),
-.ram_rd_data    (ram_rd_data)
-);
+//ram ram_inst(
+//.clk		(clk),
+//.ram_rd_address (ram_rd_address),
+//.ram_wr_address (ram_wr_address),
+//.ram_wr_data    (ram_wr_data),
+//.wr_val         (wr_valid),
+//.ram_rd_data    (ram_rd_data)
+//);
 
 wire [31:0] x1_initial;
 wire [31:0] x2_initial;
@@ -215,7 +231,7 @@ print"
 assign wr_valid = substitution_table_valid && !encryption_done;
 assign ram_wr_data = 
 {";
-for(my $j=15;$j>=0;$j--){
+for(my $j=$number_of_parallel_structures-1;$j>=0;$j--){
 print"cypher_text_out_for_str${j}";
 if($j ne 0){
 print",";

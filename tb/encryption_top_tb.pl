@@ -10,6 +10,7 @@ my $ram_depth = (8*$image_width*$image_width)/$ram_width;
 my $ram_depth_log2 = ceil(log($ram_depth)/log(2));
 print"
 `include \"../RTL_verilog/encryption_top.v\"
+`include \"../RTL_verilog/ram.v\"
 
 module encryption_top_tb;
 
@@ -25,6 +26,25 @@ reg [7:0] MEMOUT [0:$number_of_pixels-1];
 wire encryption_done;
 
 
+wire [$ram_depth_log2 - 1 : 0] ram_rd_address;
+wire [$ram_depth_log2 - 1 : 0] ram_wr_address;
+wire [$ram_width - 1 : 0] ram_wr_data;
+wire wr_valid;
+wire [$ram_width - 1 : 0] ram_rd_data;
+
+
+
+
+ram ram_inst(
+.clk		(clk),
+.ram_rd_address (ram_rd_address),
+.ram_wr_address (ram_wr_address),
+.ram_wr_data    (ram_wr_data),
+.wr_val         (wr_valid),
+.ram_rd_data    (ram_rd_data)
+);
+
+
 encryption_top encryption_top_inst(
 .clk					 (clk),
 .rstn                                    (rstn),
@@ -34,6 +54,14 @@ encryption_top encryption_top_inst(
 .config_initialization_vector            (config_initialization_vector),
 .config_wait_count_for_chaos_valid       (config_wait_count_for_chaos_valid),
 .config_key_initial                      (config_key_initial),
+
+
+.ram_rd_address				(ram_rd_address),
+.ram_wr_address				(ram_wr_address),
+.ram_wr_data   				(ram_wr_data),
+.ram_rd_data   				(ram_rd_data),
+.wr_valid      				(wr_valid),
+
 .encryption_done			 (encryption_done)
 );
 
@@ -71,7 +99,7 @@ initial	begin
 		my $ram_msb = 8*$i+7;
 		my $ram_lsb = 8*$i;
 		my $MEM_INDEX = $i+($j*32*$number_of_parallel_structures);
-	print"	encryption_top_inst.ram_inst.mem[$j][$ram_msb : $ram_lsb] = MEM[$MEM_INDEX];
+	print"	ram_inst.mem[$j][$ram_msb : $ram_lsb] = MEM[$MEM_INDEX];
 	";
 	}
     }
@@ -85,7 +113,7 @@ print"
 		my $ram_msb = 8*$i+7;
 		my $ram_lsb = 8*$i;
 		my $MEM_INDEX = $i+($j*32*$number_of_parallel_structures);
-	print"  MEM[$MEM_INDEX] = encryption_top_inst.ram_inst.mem[$j][$ram_msb:$ram_lsb] ;
+	print"  MEM[$MEM_INDEX] = ram_inst.mem[$j][$ram_msb:$ram_lsb] ;
 	";
 	}
     }
